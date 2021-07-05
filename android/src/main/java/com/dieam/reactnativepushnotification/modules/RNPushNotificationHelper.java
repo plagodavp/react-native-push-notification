@@ -107,7 +107,7 @@ public class RNPushNotificationHelper {
             notificationIntent.putExtra(RNPushNotificationPublisher.NOTIFICATION_ID, notificationID);
             notificationIntent.putExtras(bundle);
 
-            return PendingIntent.getBroadcast(context, notificationID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            return PendingIntent.getBroadcast(context, notificationID, notificationIntent, this.getPendingIntentFlag());
         } catch (Exception e) {
             Log.e(LOG_TAG, "Unable to parse Notification ID", e);
         }
@@ -177,6 +177,14 @@ public class RNPushNotificationHelper {
             }
         } else {
             getAlarmManager().set(AlarmManager.RTC_WAKEUP, fireDate, pendingIntent);
+        }
+    }
+
+    private int getPendingIntentFlag () {
+        if (android.os.Build.VERSION.SDK_INT >= 23) {
+            return PendingIntent.FLAG_IMMUTABLE;
+        } else {
+            return PendingIntent.FLAG_UPDATE_CURRENT;
         }
     }
 
@@ -451,7 +459,7 @@ public class RNPushNotificationHelper {
             int notificationID = Integer.parseInt(notificationIdString);
 
             PendingIntent pendingIntent = PendingIntent.getActivity(context, notificationID, intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+                    this.getPendingIntentFlag());
 
             NotificationManager notificationManager = notificationManager();
 
@@ -529,7 +537,9 @@ public class RNPushNotificationHelper {
                     }
 
                     PendingIntent pendingActionIntent = PendingIntent.getBroadcast(context, notificationID, actionIntent,
-                            PendingIntent.FLAG_UPDATE_CURRENT);
+                            this.getPendingIntentFlag());
+
+
                     if(action.equals("ReplyInput")){
                         //Action with inline reply
                         if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT_WATCH){
